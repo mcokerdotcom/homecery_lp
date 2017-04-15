@@ -1,0 +1,172 @@
+<!doctype html>
+
+<head>
+	<title></title>
+	<title></title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		
+		input,
+		textarea,
+		button,
+		body {
+			font-family: 'Open Sans', sans-serif;
+			color: #222;
+			line-height: 1;
+			outline: 0;
+		}
+		
+		body {
+			min-height: 100vh;
+		}
+		
+		.viewport {
+			max-width: 960px;
+			margin: auto;
+			width: 90%;
+		}
+		
+		.header,
+		.footer {
+			background: #eee;
+		}
+		
+		.header,
+		.footer,
+		.main {
+			padding: 2em 0;
+		}
+		
+		.main {}
+		
+		a {
+			color: #025aa5;
+		}
+		
+		.logoLink {
+			text-decoration: none;
+		}
+		
+		.zipForm {
+			display: flex;
+			align-items: baseline;
+		}
+		
+		.zipLabel,
+		.zipInput {
+			margin: 0 1em 0 0;
+		}
+		
+		.zipLabelHeading,
+		.zipInput {
+			font-size: 1.5rem;
+			font-weight: bold;
+		}
+		
+		button,
+		input[type*="text"],
+		button {
+			border: 1px solid rgba(0, 0, 0, .15);
+			padding: .5rem .75rem;
+			border-radius: .25em;
+			font-size: 1rem;
+			transition: border .25s, background .25s;
+		}
+		
+		input[type*="text"] {
+			background: #fafafa;
+		}
+		
+		input[type*="text"]:focus {
+			border-color: #5cb3fd;
+			background: white;
+		}
+		
+		button {
+			display: inline-block;
+			font-weight: 400;
+			text-align: center;
+			white-space: nowrap;
+			vertical-align: middle;
+			user-select: none;
+			background: #0C75D8;
+			color: #fff;
+			cursor: pointer;
+		}
+		
+		button:hover,
+		button:focus {
+			background: #025aa5;
+		}
+
+		.addressDetails {
+			font-style: italic;
+		}
+	</style>
+</head>
+
+<body>
+
+	<header class="header">
+		<h1 class="viewport"><a href="/" class="logoLink">logo</a></h1>
+	</header>
+
+	<main class="main">
+		<div class="viewport">
+			<form method="get" action="zipcode.php" class="zipForm" id="zipForm">
+				<label for="zip" class="zipLabel"><h2 class="zipLabelHeading">What's your zip code?</h2></label>
+				<input type="text" name="zip" id="zip" class="zipInput" autofocus>
+				<button type="submit" class="zipSubmit">Go!</button>
+			</form>
+
+			<div class="addressDetails"></div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<p class="viewport">footer</p>
+	</footer>
+
+	<script>
+		$(function () {
+			$('#zipForm').on('submit', function (e) {
+				var zip = $('#zip').val(),
+					address_components = '',
+					city = '',
+					state = '',
+					output = 'No results.';
+				e.preventDefault();
+				$.getJSON('zipcode.php?zip=' + zip, function (data) {
+					if (data && data.results[0] && data.results[0].address_components) {
+						var address_components = data.results[0].address_components;
+						if (address_components) {
+							$(address_components).each(function() {
+								var typesArr = this['types'];
+								if (typesArr.indexOf('locality') >= 0) {
+									city = this['long_name'];
+								} else if (typesArr.indexOf('administrative_area_level_1') >= 0) {
+									state = this['long_name'];
+								}
+							})
+						}
+					}
+					if (city && state) {
+						output = city + ', ' + state + ' ' + zip;
+					}
+					$('.addressDetails').html(output);
+				});
+			})
+		});
+	</script>
+
+</body>
